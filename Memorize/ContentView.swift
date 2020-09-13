@@ -26,7 +26,7 @@ struct ContentView: View {
             .font(.title)
             .padding()
             Grid(viewModel.cards, itemDesiredAspectRatio: cardsDesiredAspectRatio) { card in
-                CardView(card: card, cardBack: cardBack)
+                CardView(card: card, back: cardBack)
                         .onTapGesture {
                             viewModel.choose(card)
                     }
@@ -38,55 +38,47 @@ struct ContentView: View {
         .padding()
     }
     
+    @ViewBuilder
     private var cardBack: some View {
-        Group {
-            if let _ = viewModel.colors.only {
-                Rectangle().fill()
-            } else {
-                Rectangle().fill(LinearGradient(gradient: Gradient(colors: viewModel.colors), startPoint: .bottomLeading, endPoint: .topTrailing))
-            }
+        if let _ = viewModel.colors.only {
+            Rectangle().fill()
+        } else {
+            LinearGradient(gradient: Gradient(colors: viewModel.colors), startPoint: .bottomLeading, endPoint: .topTrailing)
         }
     }
     
     // MARK: - Drawing Constants
     
     private let cardsDesiredAspectRatio: Double = 3 / 4
+    
 }
 
 // MARK: -
 
 struct CardView<BackContent>: View where BackContent: View {
     var card: MemoryGame<String>.Card
-    var cardBack: BackContent
+    var back: BackContent
     
     var body: some View {
         GeometryReader { geometry in
-            ZStack {
-                if card.isMatched {
-                    EmptyView()
-                } else if card.isFaceUp {
-                    RoundedRectangle(cornerRadius: cardCornerRadius, style: cardCornerStyle)
-                        .fill()
-                        .foregroundColor(cardBackgroundColor)
-                    RoundedRectangle(cornerRadius: cardCornerRadius, style: cardCornerStyle)
-                        .strokeBorder(lineWidth: cardStrokeLineWidth)
-                    Text(card.content)
-                } else {
-                    cardBack
-                        .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: cardCornerStyle))
+                if !card.isMatched {
+                    ZStack {
+                        Pie(startAngle: Angle.degrees(0 - 90), endAngle: Angle.degrees(110 - 90), clockwise: true)
+                            .opacity(pieOpacity)
+                            .padding(piePadding)
+                        Text(card.content)
+                    }
+                    .cardify(isFaceUp: card.isFaceUp, cardBack: back)
+                    .font(.system(size: cardFontMultiplier * min(geometry.size.width, geometry.size.height)))
                 }
-            }
-            .font(.system(size: cardFontMultiplier * min(geometry.size.width, geometry.size.height)))
         }
     }
     
     // MARK: - Drawing Constants
     
-    private let cardCornerRadius: CGFloat = 18.0
-    private let cardCornerStyle: RoundedCornerStyle = .continuous
-    private let cardBackgroundColor: Color = .white
-    private let cardStrokeLineWidth: CGFloat = 3.0
-    private let cardFontMultiplier: CGFloat = 0.7
+    private let cardFontMultiplier: CGFloat = 0.65
+    private let piePadding: CGFloat = 7
+    private let pieOpacity: Double = 0.3
     
 }
 
@@ -94,7 +86,9 @@ struct CardView<BackContent>: View where BackContent: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(viewModel: EmojiMemoryGame())
+        let game = EmojiMemoryGame()
+        game.choose(game.cards[1])
+        return ContentView(viewModel: game)
             .preferredColorScheme(ColorScheme.dark)
     }
 }
