@@ -8,13 +8,14 @@
 import Foundation
 
 struct MemoryGame<CardContent> where CardContent: Equatable {
-    var cards: [Card]
+    private(set) var cards: [Card]
     
-    var score = 0
-    let scoreReward  = +2
-    let scorePenalty = -1
+    private(set) var score = 0
     
-    var theOnlyFaceUpCardIndex: Int? {
+    private let scoreReward  = +2
+    private let scorePenalty = -1
+    
+    private var theOnlyFaceUpCardIndex: Int? {
         get { cards.indices.filter { cards[$0].isFaceUp }.only }
         set {
             for index in cards.indices {
@@ -58,11 +59,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable {
     struct Card: Identifiable
     {
         var isFaceUp: Bool = false {
-            willSet {
-                if isFaceUp && !newValue {
-                    hasBeenShown = true
-                }
-            }
+            willSet { if isFaceUp && !newValue { hasBeenShown = true } }
         }
         var isMatched: Bool = false
         var hasBeenShown: Bool = false

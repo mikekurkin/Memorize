@@ -10,9 +10,10 @@ import SwiftUI
 struct Grid<Item, ItemView>: View where
     Item: Identifiable,
     ItemView: View {
-    var items: [Item]
-    var viewForItem: (Item) -> ItemView
-    var itemDesiredAspectRatio: Double = 1
+    
+    private var items: [Item]
+    private var viewForItem: (Item) -> ItemView
+    private var itemDesiredAspectRatio: Double = 1
     
     init(_ items: [Item], itemDesiredAspectRatio: Double = 1, contents viewForItem: @escaping (Item) -> ItemView) {
         self.items = items

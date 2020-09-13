@@ -38,7 +38,7 @@ struct ContentView: View {
         .padding()
     }
     
-    var cardBack: some View {
+    private var cardBack: some View {
         Group {
             if let _ = viewModel.colors.only {
                 Rectangle().fill()
@@ -50,14 +50,13 @@ struct ContentView: View {
     
     // MARK: - Drawing Constants
     
-    let cardsDesiredAspectRatio: Double = 3 / 4
+    private let cardsDesiredAspectRatio: Double = 3 / 4
 }
 
 // MARK: -
 
 struct CardView<BackContent>: View where BackContent: View {
     var card: MemoryGame<String>.Card
-
     var cardBack: BackContent
     
     var body: some View {
@@ -83,11 +82,11 @@ struct CardView<BackContent>: View where BackContent: View {
     
     // MARK: - Drawing Constants
     
-    let cardCornerRadius: CGFloat = 18.0
-    let cardCornerStyle: RoundedCornerStyle = .continuous
-    let cardBackgroundColor: Color = .white
-    let cardStrokeLineWidth: CGFloat = 3.0
-    let cardFontMultiplier: CGFloat = 0.7
+    private let cardCornerRadius: CGFloat = 18.0
+    private let cardCornerStyle: RoundedCornerStyle = .continuous
+    private let cardBackgroundColor: Color = .white
+    private let cardStrokeLineWidth: CGFloat = 3.0
+    private let cardFontMultiplier: CGFloat = 0.7
     
 }
 
