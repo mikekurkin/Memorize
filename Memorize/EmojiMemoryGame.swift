@@ -40,12 +40,16 @@ class EmojiMemoryGame: ObservableObject {
                    name: "Flags",
                    colors: [.red])
         themes.add("🥎", "🎾", "🏐", "🏉",
-                   name: "4 Balls")
+                   name: "4 Balls",
+                   colors: [.red, .orange, .white, .green])
         
         let chosenTheme = themes.chooseRandom()!
         
-        return (MemoryGame<String>(numberOfPairsOfCards: chosenTheme.numberOfPairs) { pairIndex in
-            chosenTheme.shuffledElements[pairIndex]
+        let numberOfPairs = chosenTheme.numberOfPairs
+        let shuffledElements = chosenTheme.shuffledElements
+        
+        return (MemoryGame<String>(numberOfPairsOfCards: numberOfPairs) { pairIndex in
+            shuffledElements[pairIndex]
         }, chosenTheme)
     }
     
