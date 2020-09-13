@@ -11,32 +11,61 @@ struct ContentView: View {
     @ObservedObject var viewModel: EmojiMemoryGame
     
     var body: some View {
-        Grid(viewModel.cards, itemDesiredAspectRatio: cardsDesiredAspectRatio) { card in
-                CardView(card: card)
-                    .onTapGesture {
-                        viewModel.choose(card)
+        VStack {
+            HStack(alignment: .center) {
+                Text(viewModel.name).bold().lineLimit(1)
+                Spacer()
+                HStack(spacing: 25) {
+                    HStack(alignment: .bottom, spacing: -2) {
+                        Text(String(viewModel.score)).bold()
+                        Text("/\(String(viewModel.cards.count))").font(.title3)
+                    }
+                    Button(action: viewModel.newGame) { Image(systemName: "shuffle") }
                 }
-                    .padding(5)
-        }
+            }
+            .font(.title)
             .padding()
-            .foregroundColor(cardsAccentColor)
+            Grid(viewModel.cards, itemDesiredAspectRatio: cardsDesiredAspectRatio) { card in
+                CardView(card: card, cardBack: cardBack)
+                        .onTapGesture {
+                            viewModel.choose(card)
+                    }
+                        .padding(5)
+            }
+            .foregroundColor(viewModel.colors[0])
+                
+        }
+        .padding()
+    }
+    
+    var cardBack: some View {
+        Group {
+            if let _ = viewModel.colors.only {
+                Rectangle().fill()
+            } else {
+                Rectangle().fill(LinearGradient(gradient: Gradient(colors: viewModel.colors), startPoint: .bottomLeading, endPoint: .topTrailing))
+            }
+        }
     }
     
     // MARK: - Drawing Constants
     
-    let cardsAccentColor: Color = .accentColor
-    let cardsDesiredAspectRatio: Double = 2 / 3
+    let cardsDesiredAspectRatio: Double = 3 / 4
 }
 
 // MARK: -
 
-struct CardView: View {
+struct CardView<BackContent>: View where BackContent: View {
     var card: MemoryGame<String>.Card
+
+    var cardBack: BackContent
     
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                if card.isFaceUp {
+                if card.isMatched {
+                    EmptyView()
+                } else if card.isFaceUp {
                     RoundedRectangle(cornerRadius: cardCornerRadius, style: cardCornerStyle)
                         .fill()
                         .foregroundColor(cardBackgroundColor)
@@ -44,10 +73,8 @@ struct CardView: View {
                         .strokeBorder(lineWidth: cardStrokeLineWidth)
                     Text(card.content)
                 } else {
-                    if !card.isMatched {
-                        RoundedRectangle(cornerRadius: cardCornerRadius, style: cardCornerStyle)
-                            .fill()
-                    }
+                    cardBack
+                        .clipShape(RoundedRectangle(cornerRadius: cardCornerRadius, style: cardCornerStyle))
                 }
             }
             .font(.system(size: cardFontMultiplier * min(geometry.size.width, geometry.size.height)))
@@ -56,7 +83,7 @@ struct CardView: View {
     
     // MARK: - Drawing Constants
     
-    let cardCornerRadius: CGFloat = 10.0
+    let cardCornerRadius: CGFloat = 18.0
     let cardCornerStyle: RoundedCornerStyle = .continuous
     let cardBackgroundColor: Color = .white
     let cardStrokeLineWidth: CGFloat = 3.0

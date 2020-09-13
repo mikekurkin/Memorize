@@ -10,34 +10,77 @@ import SwiftUI
 class EmojiMemoryGame: ObservableObject {
     @Published private var game = EmojiMemoryGame.createMemoryGame()
     
-    static func createMemoryGame() -> MemoryGame<String> {
-        let emojis: [String] = ["👻", "😁", "👽", "👹", "👾", "👀", "🐭", "🐙", "🍄", "🌧", "🌞", "🌚"].shuffled()
-        let pairsCount = Int.random(in: 2...8)
+    static func createMemoryGame() -> (model: MemoryGame<String>, theme: GameTheme<String>) {
         
-        return MemoryGame<String>(numberOfPairsOfCards: pairsCount) { pairIndex in
-            emojis[pairIndex]
+        var themes = ThemeManager<String>()
+        
+        // MARK: Themes declaration
+        
+        themes.add("👻", "🎃", "👿", "👹", "💀", "🤖", "🍬",
+                   name: "Halloween",
+                   colors: [.orange])
+        themes.add("🐶", "🐙", "🐱", "🐭", "🦊", "🐷", "🐨", "🐻", "🐼", "🐹", "🙈", "🐸",
+                   name: "Animals",
+                   colors: [.green, .blue])
+        themes.add("🌧", "🌞", "❄️", "⛅️", "💨", "☔️", "⚡️",
+                   name: "Weather",
+                   colors: [.gray])
+        themes.add("☄️", "🌝", "🌚", "🌜", "✨", "🌎", "🪐",
+                   name: "Space",
+                   colors: [.purple, .blue],
+                   fixedNumberOfPairs: 6)
+        themes.add("🍩", "🍕", "🧀", "🥨", "🍆", "🍉", "🥩", "🍟",
+                   name: "Food",
+                   colors: [.yellow, .red])
+        themes.add("🥎", "🎾", "🏐", "🏉", "🎱", "🪀", "⚽️", "🧶",
+                   name: "Balls",
+                   colors: [])
+        themes.add("🏴‍☠️", "🇷🇺", "🇬🇧", "🇺🇸", "🇲🇰", "🇭🇰", "🇨🇳", "🇻🇳", "🇳🇵",
+                   name: "Flags",
+                   colors: [.red])
+        themes.add("🥎", "🎾", "🏐", "🏉",
+                   name: "4 Balls")
+        
+        let chosenTheme = themes.chooseRandom()!
+        
+        return (MemoryGame<String>(numberOfPairsOfCards: chosenTheme.numberOfPairs) { pairIndex in
+            chosenTheme.shuffledElements[pairIndex]
+        }, chosenTheme)
+    }
+    
+    // MARK: - Access to the Theme
+    
+    var colors: [Color] {
+        if game.theme.colors?.isEmpty ?? true {
+            return [.accentColor]
+        } else {
+            return game.theme.colors!
         }
     }
     
+    var name: String {
+        game.theme.name
+    }
     
     // MARK: - Access to the Model
     
     var cards: [MemoryGame<String>.Card] {
-        game.cards
+        game.model.cards
+    }
+    
+    var score: Int {
+        game.model.score
     }
     
     // MARK: - Intents
     
     func choose(_ card: MemoryGame<String>.Card) {
-//        objectWillChange.send()
-        game.choose(card)
+        game.model.choose(card)
     }
     
+    func newGame() {
+        game = EmojiMemoryGame.createMemoryGame()
+    }
     
 }
 
-struct EmojiMemoryGame_Previews: PreviewProvider {
-    static var previews: some View {
-        /*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
-    }
-}
